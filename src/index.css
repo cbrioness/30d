@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Russo One', sans-serif;
+  --font-sans: 'Outfit', sans-serif;
+  --color-ink: #07060f;
+  --color-panel: #12101c;
+  --color-neon: #3dffe8;
+  --color-magenta: #ff3dce;
+  --color-amber: #ffe14a;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: white;
+  background:
+    radial-gradient(900px 480px at 10% -10%, rgb(255 61 206 / 0.28), transparent 55%),
+    radial-gradient(800px 420px at 100% 0%, rgb(61 255 232 / 0.18), transparent 50%),
+    radial-gradient(700px 500px at 50% 120%, rgb(120 70 255 / 0.22), transparent 55%),
+    var(--color-ink);
+}
+
+#root {
+  min-height: 100vh;
+}
