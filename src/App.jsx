@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Logo from './Logo.jsx'
 import { games } from './games.js'
 
@@ -157,6 +157,69 @@ function Shelf({ title, accent, count, empty, children }) {
   )
 }
 
+function SoundButton() {
+  const audioRef = useRef(null)
+  const wantSound = useRef(true)
+  const [on, setOn] = useState(true)
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const tryPlay = () => {
+      if (!wantSound.current) return
+      const pending = audio.play()
+      if (!pending) return
+      pending.catch(() => {})
+    }
+
+    const onGesture = (event) => {
+      const target = event.target
+      if (target instanceof Element && target.closest('[data-sound-toggle]')) return
+      tryPlay()
+    }
+
+    tryPlay()
+    window.addEventListener('pointerdown', onGesture, true)
+    window.addEventListener('keydown', onGesture, true)
+    return () => {
+      window.removeEventListener('pointerdown', onGesture, true)
+      window.removeEventListener('keydown', onGesture, true)
+    }
+  }, [])
+
+  function toggle() {
+    const audio = audioRef.current
+    if (!audio) return
+    if (wantSound.current && !audio.paused) {
+      wantSound.current = false
+      setOn(false)
+      audio.pause()
+      return
+    }
+    wantSound.current = true
+    setOn(true)
+    const pending = audio.play()
+    if (pending) pending.catch(() => {})
+  }
+
+  return (
+    <>
+      <audio ref={audioRef} src="/30dias.m4a" loop preload="auto" />
+      <button
+        type="button"
+        data-sound-toggle
+        onClick={toggle}
+        aria-pressed={on}
+        aria-label={on ? 'Apagar sonido' : 'Encender sonido'}
+        className="shrink-0 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide uppercase hover:bg-white/20"
+      >
+        {on ? 'Sonido on' : 'Sonido off'}
+      </button>
+    </>
+  )
+}
+
 export default function App() {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState(null)
@@ -217,9 +280,12 @@ export default function App() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       <header className="mb-8">
         <p className="mb-2 text-xs font-bold tracking-[0.35em] text-neon uppercase">Estantería</p>
-        <h1 className="leading-none">
-          <Logo className="block h-8 w-auto sm:h-9" />
-        </h1>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="leading-none">
+            <Logo className="h-8 sm:h-9" />
+          </h1>
+          <SoundButton />
+        </div>
         <p className="mt-2 max-w-xl text-white/70">
           Tu lista de juegos, sin cuentas. Buscá, guardá lo que querés jugar y marcá lo que ya terminaste.
         </p>
